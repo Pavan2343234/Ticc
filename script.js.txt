@@ -1,0 +1,77 @@
+const cells = document.querySelectorAll('.cell');
+const message = document.getElementById('message');
+const resetButton = document.getElementById('reset');
+const newGameButton = document.getElementById('newGame');
+let currentPlayer = 'X';
+let board = ['', '', '', '', '', '', '', '', ''];
+let isGameActive = true;
+
+const winningConditions = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+];
+
+const handleCellClick = (event) => {
+    const clickedCell = event.target;
+    const clickedIndex = parseInt(clickedCell.getAttribute('data-index'));
+
+    if (board[clickedIndex] !== '' || !isGameActive) {
+        return;
+    }
+
+    board[clickedIndex] = currentPlayer;
+    clickedCell.textContent = currentPlayer;
+    clickedCell.classList.add(currentPlayer.toLowerCase());
+
+    if (checkWinner()) {
+        message.textContent = `Player ${currentPlayer} wins!`;
+        isGameActive = false;
+    } else if (!board.includes('')) {
+        message.textContent = "It's a draw!";
+        isGameActive = false;
+    } else {
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        message.textContent = `Player ${currentPlayer}'s turn`;
+    }
+};
+
+const checkWinner = () => {
+    return winningConditions.some(condition => {
+        return condition.every(index => {
+            return board[index] === currentPlayer;
+        });
+    });
+};
+
+const resetGame = () => {
+    board = ['', '', '', '', '', '', '', '', ''];
+    isGameActive = true;
+    message.textContent = `Player ${currentPlayer}'s turn`;
+    cells.forEach(cell => {
+        cell.textContent = '';
+        cell.classList.remove('x', 'o');
+    });
+};
+
+// New Game function (randomly selects first player)
+const newGame = () => {
+    resetGame();
+    currentPlayer = Math.random() < 0.5 ? 'X' : 'O';
+    message.textContent = `Player ${currentPlayer}'s turn`;
+};
+
+cells.forEach(cell => {
+    cell.addEventListener('click', handleCellClick);
+});
+
+resetButton.addEventListener('click', resetGame);
+newGameButton.addEventListener('click', newGame);
+
+// Initialize game
+resetGame();
